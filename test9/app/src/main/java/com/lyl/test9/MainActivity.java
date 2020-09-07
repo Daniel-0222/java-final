@@ -1,12 +1,14 @@
-package com.lyl.test9.Activity;
+package com.lyl.test9;
 
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.ImageView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.lyl.test9.R;
 import com.lyl.test9.Utils.NetWorkChangeReceiver;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,9 +17,11 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class MainActivity extends AppCompatActivity {
-    //private boolean isRegistered = false;
     private NetWorkChangeReceiver netWorkChangReceiver;
 
     @Override
@@ -44,5 +48,12 @@ public class MainActivity extends AppCompatActivity {
         //isRegistered = true;
     }
 
+    public void onActivityResult(int requestCode, int resultCode, Intent data){
+        super.onActivityResult(requestCode, resultCode, data);
+        Bundle bundle = data.getExtras();
+        ArrayList list  = bundle.getParcelableArrayList("list");
+        List<String> mVals = (List<String>) list.get(0);
+        Log.d("Laze",mVals.get(0));
+    }
 
 }

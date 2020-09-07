@@ -13,8 +13,10 @@ import android.widget.ArrayAdapter;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import com.lyl.test9.Activity.WelcomeActivity;
+
 import com.lyl.test9.R;
+import com.lyl.test9.ui.home.Activity.NewsActivity;
+
 import java.util.List;
 
 public class HomeSubFragment extends Fragment implements RefreshListView.OnRefreshListener,RefreshListView.OnLoadMoreListener{
@@ -60,7 +62,7 @@ public class HomeSubFragment extends Fragment implements RefreshListView.OnRefre
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //Toast.makeText(context, "position=" + position, Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(getActivity(), WelcomeActivity.class);
+                Intent intent = new Intent(getActivity(), NewsActivity.class);
                 startActivity(intent);
             }
         });

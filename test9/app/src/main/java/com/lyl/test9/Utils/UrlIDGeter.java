@@ -14,6 +14,7 @@ public class UrlIDGeter {
     String data;
     int start;
     List<String> id_list;
+    List<String> date_list;
 
     public UrlIDGeter(String url){
         start = 0;
@@ -38,22 +39,6 @@ public class UrlIDGeter {
                         sb.append(line);//在StringBuffer中添加；
                     }
                     data = sb.toString();
-
-                    int idstart = 0;
-                    int count = 0;
-                    int ind = data.indexOf("\"_id",idstart);
-                    while(count < 21 && ind != -1){
-                        int leftindex = ind + 7;
-                        int rightindex = data.indexOf(',',leftindex)-1;
-                        id_list.add(data.substring(leftindex,rightindex));
-                        idstart = rightindex;
-                        ind = data.indexOf("\"_id",idstart);
-                        count++;
-                    }
-
-                    for(int i=0;i<id_list.size();i++){
-                        System.out.println(id_list.get(i));
-                    }
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
@@ -63,11 +48,13 @@ public class UrlIDGeter {
         }.start();
     }
 
+    public void setZero(){ start = 0; }
+
     public String getData(String tag){
         if(data != null) {
             int ind = data.indexOf(tag,start);
             if(ind == -1) return null;
-            int leftindex = ind + tag.length() + 3;
+            int leftindex = ind + tag.length() + 2;
             int rightindex = data.indexOf('\"', leftindex);
             start = rightindex;
             return data.substring(leftindex, rightindex);

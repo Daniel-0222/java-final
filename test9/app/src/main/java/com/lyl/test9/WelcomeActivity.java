@@ -1,4 +1,4 @@
-package com.lyl.test9.Activity;
+package com.lyl.test9;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,8 +7,6 @@ import android.view.animation.Animation;
 import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.lyl.test9.R;
 
 import java.util.Timer;
 import java.util.TimerTask;
