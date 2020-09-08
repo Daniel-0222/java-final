@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -18,9 +19,10 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.tabs.TabLayout;
 import com.lyl.test9.R;
 import com.lyl.test9.Utils.DatabaseHelper;
-import com.lyl.test9.Utils.UrlIDGeter;
+import com.lyl.test9.Utils.UrlGeter;
 import com.lyl.test9.ui.home.Activity.EditActivity;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -74,7 +76,7 @@ public class HomeFragment extends Fragment {
         datas.add("test9");
     }
     private void initViews() throws InterruptedException {
-        UrlIDGeter geter = new UrlIDGeter("https://covid-dashboard.aminer.cn/api/events/list?type=paper&page=1");
+        UrlGeter geter = new UrlGeter("https://covid-dashboard.aminer.cn/api/events/list?type=news&page=5");
         geter.Gets();
         //循环注入标签
         for (String tab : datas) {
@@ -84,10 +86,12 @@ public class HomeFragment extends Fragment {
         List<String> title_list = new ArrayList<>();
         List<String> id_list = new ArrayList<>();
         List<String> date_list = new ArrayList<>();
+        List<String> content_list = new ArrayList<>();
+        List<String> urls_list = new ArrayList<>();
         //获取新闻标题
         for (int i = 0; i < listnum; i++){
             String tem;
-            while ((tem = geter.getData("\"title\"")) == null) {
+            while ((tem = geter.getData("title")) == null) {
                 Thread.sleep(100);
             }
             title_list.add(tem);
@@ -95,44 +99,60 @@ public class HomeFragment extends Fragment {
         //获取新闻的id
         geter.setZero();
         for(int i = 0;i < listnum;i++){
-            id_list.add(geter.getData("\"_id\""));
+            id_list.add(geter.getData("_id"));
         }
         //获取新闻的时间
         geter.setZero();
         for(int i = 0;i < listnum;i++){
-            date_list.add(geter.getData("\"date\""));
+            date_list.add(geter.getData("date"));
+        }
+        //获取新闻的内容
+        geter.setZero();
+        for(int i = 0;i < listnum;i++){
+            content_list.add(geter.getData("content"));
+        }
+        //获取新闻的来源
+        geter.setZero();
+        for(int i = 0;i < listnum;i++){
+            urls_list.add(geter.getData("urls"));
         }
 
         //将list信息存入数据库
-        helper = new DatabaseHelper(getActivity(), "NewsDB.db", null, 1);
+        helper = new DatabaseHelper(getActivity(), "Newsdb.db", null, 1);
         SQLiteDatabase db = helper.getWritableDatabase();
-        for(int i=0;i<listnum;i++){
+        for(int i=listnum-1;i>=0;i--){
             //组装数据
             ContentValues values = new ContentValues();
             values.put("news_title", title_list.get(i));
             values.put("news_id",id_list.get(i));
             values.put("news_date", date_list.get(i));
+            values.put("news_content",content_list.get(i));
+            values.put("news_sourse",urls_list.get(i));
             //存入数据库
-            db.insert("List",null,values);
+            db.insert("News",null,values);
         }
         db.close();
 
         SQLiteDatabase dbr = helper.getReadableDatabase();
-        Cursor cursor = dbr.rawQuery("select * from List", null);
+        Cursor cursor = dbr.rawQuery("select * from News", null);
         if(cursor.moveToFirst()){
             do {
                 String title = cursor.getString(cursor.getColumnIndex("news_title"));
                 String id = cursor.getString(cursor.getColumnIndex("news_id"));
                 String date = cursor.getString(cursor.getColumnIndex("news_date"));
+                String content = cursor.getString(cursor.getColumnIndex("news_content"));
+                String sourse = cursor.getString(cursor.getColumnIndex("news_sourse"));
                 System.out.print("title is: "+title);
-                System.out.print("             id is: "+id);
-                System.out.println("             date is: "+date);
+                System.out.print("       id is: "+id);
+                System.out.print("       date is: "+date);
+                System.out.print("       content is: "+content);
+                System.out.println("       sourse is: "+sourse);
             }while (cursor.moveToNext());
         }
         dbr.close();
 
         db = helper.getWritableDatabase();
-        db.execSQL("delete from List");
+        db.execSQL("delete from News");
         //设置TabLayout点击事件
         for (int i = 0; i < 9; i++) {
             HomeSubFragment h = new HomeSubFragment();

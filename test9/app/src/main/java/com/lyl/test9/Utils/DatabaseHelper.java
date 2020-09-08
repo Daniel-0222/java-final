@@ -8,16 +8,11 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private Context mContext;
-    public static final String CREATE_LIST = "create table List ("
-            + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-            + "news_title text,"
-            + "news_date text,"
-            + "news_id text)";
     public static final String CREATE_NEWS = "create table News ("
             + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
             + "news_title text,"
             + "news_date text,"
-            + "news_author text,"
+            + "news_content text,"
             + "news_id text,"
             + "news_sourse text)";
 
@@ -29,7 +24,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         sqLiteDatabase.execSQL(CREATE_NEWS);
-        sqLiteDatabase.execSQL(CREATE_LIST);
     }
 
     @Override
