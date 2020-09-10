@@ -1,5 +1,6 @@
 package com.lyl.news.ui.home.Activity;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -29,8 +30,8 @@ public class NewsActivity extends AppCompatActivity {
         String s_label = intent.getStringExtra("label");
 
         helper = new DatabaseHelper(NewsActivity.this, "NewsDatabase.db", null, 1);
-        SQLiteDatabase dbr = helper.getReadableDatabase();
-        Cursor cursor = dbr.rawQuery("select * from "+s_label+" where title=?", new String[]{s_title});
+        SQLiteDatabase db = helper.getWritableDatabase();
+        Cursor cursor = db.rawQuery("select * from "+s_label+" where title=?", new String[]{s_title});
         if(cursor.moveToFirst()) {
             String s_date = cursor.getString(cursor.getColumnIndex("date"));
             String s_content = cursor.getString(cursor.getColumnIndex("content"));
@@ -44,6 +45,10 @@ public class NewsActivity extends AppCompatActivity {
             source.setText(s_source);
             content.setText(s_content);
         }
-        dbr.close();
+        //TODO
+        ContentValues values = new ContentValues();
+        values.put("browsed", "true");
+        db.update(s_label,values,"title=?",new String[]{s_title});
+        db.close();
     }
 }

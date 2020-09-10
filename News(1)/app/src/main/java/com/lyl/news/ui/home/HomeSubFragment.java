@@ -69,7 +69,6 @@ public class HomeSubFragment extends Fragment implements RefreshListView.OnRefre
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //Toast.makeText(context, "position=" + position, Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(getActivity(), NewsActivity.class);
                 String title = titledata.get(position - 1);
                 intent.putExtra("title", title);
@@ -116,6 +115,7 @@ public class HomeSubFragment extends Fragment implements RefreshListView.OnRefre
                         values.put("date", date);
                         values.put("content",content);
                         values.put("source",source);
+                        values.put("browsed","false");
                         if(label.equals("paper")){
                             values.put("author",author);
                         }
@@ -159,8 +159,4 @@ public class HomeSubFragment extends Fragment implements RefreshListView.OnRefre
             }
         }).start();
     }
-
-//    public void initString(String s){
-//        label = s;
-//    }
 }

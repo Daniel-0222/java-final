@@ -19,7 +19,7 @@ public class DataGeter {
     int index;
     List<String> regions;
     List<String> begins;
-    List<String> datas;
+    List<List<String>> datas;
 
     public DataGeter(){
         index = 0;
@@ -49,12 +49,16 @@ public class DataGeter {
                         JSONObject js1 = js.getJSONObject(key);
                         begins.add(js1.getString("begin"));
                         JSONArray jsarray = js1.getJSONArray("data");
-                        JSONArray dataarray = jsarray.getJSONArray(jsarray.length()-1);
-                        String data = "";
-                        data += dataarray.optString(0) + ",";
-                        data += dataarray.optString(2) + ",";
-                        data += dataarray.optString(3);
-                        datas.add(data);
+                        List<String> one_datas = new ArrayList<>();
+                        for(int i=jsarray.length()-30;i<jsarray.length();i++){
+                            JSONArray dataarray = jsarray.getJSONArray(i);
+                            String data = "";
+                            data += dataarray.optString(0) + ",";
+                            data += dataarray.optString(2) + ",";
+                            data += dataarray.optString(3);
+                            one_datas.add(data);
+                        }
+                        datas.add(one_datas);
                     }
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
@@ -69,5 +73,5 @@ public class DataGeter {
 
     public List<String> getRegions(){ return regions; }
     public List<String> getBegins(){ return begins; }
-    public List<String> getDatas(){ return datas; }
+    public List<List<String>> getDatas(){ return datas; }
 }

@@ -38,7 +38,6 @@ public class HomeFragment extends Fragment {
     private TextView search_tv;
     public static boolean flag = false;
     private DatabaseHelper helper;
-    private final int listnum = 20;    //初次访问存入数据库的新闻数
     private final int shownum = 10;     //展示的新闻数
 
     @Nullable
@@ -67,11 +66,7 @@ public class HomeFragment extends Fragment {
 
             }
         });
-        try {
-            initViews();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        initViews();
         return root;
     }
 
@@ -88,7 +83,7 @@ public class HomeFragment extends Fragment {
             }
         }
     }
-    private void  initViews() throws InterruptedException {
+    private void  initViews(){
         //TODO
         //从数据库获取新闻title信息
         List<String> n_show_list = new ArrayList<>();
@@ -99,7 +94,7 @@ public class HomeFragment extends Fragment {
         if(cursor.moveToLast()){
             do{
                 n_show_list.add(cursor.getString(cursor.getColumnIndex("title")));
-            } while (cursor.moveToPrevious() && count++ < 10);
+            } while (cursor.moveToPrevious() && count++ < shownum);
         }
 
         //从数据库获取论文title信息
@@ -109,7 +104,7 @@ public class HomeFragment extends Fragment {
         if(cursor.moveToLast()){
             do{
                 p_show_list.add(cursor.getString(cursor.getColumnIndex("title")));
-            } while (cursor.moveToPrevious() && count++ < 10);
+            } while (cursor.moveToPrevious() && count++ < shownum);
         }
         //TODO over
 

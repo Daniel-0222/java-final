@@ -24,7 +24,6 @@ public class WelcomeActivity extends AppCompatActivity {
     private ImageView welcomeImg = null;
     private DatabaseHelper helper;
     private final int listnum = 20;    //初次访问存入数据库的新闻数
-    private final int shownum = 10;     //展示的新闻数
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,7 +85,6 @@ public class WelcomeActivity extends AppCompatActivity {
     private void inithome() throws InterruptedException {
         UrlGeter geter = new UrlGeter("https://covid-dashboard.aminer.cn/api/events/list?type=news&page=2");
         geter.Gets();
-        List<String> n_show_list;
         List<String> n_title_list = new ArrayList<>();
         List<String> n_date_list = new ArrayList<>();
         List<String> n_content_list = new ArrayList<>();
@@ -126,11 +124,11 @@ public class WelcomeActivity extends AppCompatActivity {
             values.put("date", n_date_list.get(i));
             values.put("content",n_content_list.get(i));
             values.put("source",n_source_list.get(i));
+            values.put("browsed","false");
             //存入数据库
             db.insert("news",null,values);
         }
         db.close();
-        n_show_list = n_title_list.subList(0,shownum);
 
         //获取paper信息
         geter = new UrlGeter("https://covid-dashboard.aminer.cn/api/events/list?type=paper&page=2");
@@ -182,14 +180,11 @@ public class WelcomeActivity extends AppCompatActivity {
             values.put("content",p_content_list.get(i));
             values.put("source",p_source_list.get(i));
             values.put("author",p_author_list.get(i));
+            values.put("browsed","false");
             //存入数据库
             db.insert("paper",null,values);
         }
         db.close();
-
-        for(String i: n_title_list){
-            System.out.println("title: "+i);
-        }
 
         //获取疫情数据
         System.out.println("get Data!!!!!!!!!");
@@ -198,9 +193,9 @@ public class WelcomeActivity extends AppCompatActivity {
         while(d_geter.getRegions().size() == 0){
             Thread.sleep(1000);
         }
-        List<String> d_regions = new ArrayList<>(d_geter.getRegions());
-        List<String> d_begins = new ArrayList<>(d_geter.getBegins());
-        List<String> d_datas = new ArrayList<>(d_geter.getDatas());
+        List<String> d_regions = d_geter.getRegions();
+        List<String> d_begins = d_geter.getBegins();
+        List<List<String>> d_datas = d_geter.getDatas();
     }
 }
 
