@@ -18,21 +18,14 @@
     </TextView>
 
     <TextView
-        android:id="@+id/URL"
+        android:id="@+id/source"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="0.1">
     </TextView>
 
     <TextView
-        android:id="@+id/author"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="0.1">
-    </TextView>
-
-    <TextView
-        android:id="@+id/passage"
+        android:id="@+id/content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="0.8">

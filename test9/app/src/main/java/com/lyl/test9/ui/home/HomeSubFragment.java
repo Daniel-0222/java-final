@@ -1,8 +1,11 @@
 package com.lyl.test9.ui.home;
 
 import android.annotation.SuppressLint;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -15,16 +18,19 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.lyl.test9.R;
+import com.lyl.test9.Utils.DatabaseHelper;
+import com.lyl.test9.Utils.UrlGeter;
 import com.lyl.test9.ui.home.Activity.NewsActivity;
 
 import java.util.List;
 
 public class HomeSubFragment extends Fragment implements RefreshListView.OnRefreshListener,RefreshListView.OnLoadMoreListener{
     private RefreshListView mListView;
-    private List<String> mDatas;
+    private List<String> titledata;
     private ArrayAdapter<String> mAdapter;
     private final static int REFRESH_COMPLETE = 0;
     private final static int LOAD_COMPLETE = 1;
+    private DatabaseHelper helper;
 
     @SuppressLint("HandlerLeak")
     private Handler mHandler = new Handler(){
@@ -43,7 +49,7 @@ public class HomeSubFragment extends Fragment implements RefreshListView.OnRefre
     };
 
     public void getS(List<String> s){
-        mDatas = s;
+        titledata = s;
     }
 
     @Nullable
@@ -54,7 +60,7 @@ public class HomeSubFragment extends Fragment implements RefreshListView.OnRefre
         mListView = root.findViewById(R.id.ListView);
 
 
-        mAdapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, mDatas);
+        mAdapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, titledata);
         mListView.setAdapter(mAdapter);
         mListView.setOnRefreshListener(this);
         mListView.setOnLoadMoreListener(this);
@@ -63,6 +69,8 @@ public class HomeSubFragment extends Fragment implements RefreshListView.OnRefre
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //Toast.makeText(context, "position=" + position, Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(getActivity(), NewsActivity.class);
+                String title = titledata.get(position - 1);
+                intent.putExtra("title", title);
                 startActivity(intent);
             }
         });
@@ -76,8 +84,36 @@ public class HomeSubFragment extends Fragment implements RefreshListView.OnRefre
             @Override
             public void run() {
                 try {
-                    Thread.sleep(1000);
-                    mDatas.add(0, "new下拉刷新");
+                    Thread.sleep(800);
+                    UrlGeter geter = new UrlGeter("https://covid-dashboard.aminer.cn/api/events/list?type=news&page=1");
+                    geter.Gets();
+                    String title;
+                    while ((title = geter.getData("title")) == null) {
+                        Thread.sleep(100);
+                    }
+                    geter.setZero();
+                    String id = geter.getData("_id");
+                    geter.setZero();
+                    String content = geter.getData("content");
+                    geter.setZero();
+                    String source = geter.getData("source");
+                    geter.setZero();
+                    String date = geter.getData("date");
+                    helper = new DatabaseHelper(getActivity(), "NewsDatabase.db", null, 1);
+                    SQLiteDatabase db = helper.getWritableDatabase();
+                    Cursor cursor = db.rawQuery("select * from News where news_title=?", new String[]{title});
+                    if(cursor.getCount() == 0){
+                        //组装数据
+                        ContentValues values = new ContentValues();
+                        values.put("news_title", title);
+                        values.put("news_id",id);
+                        values.put("news_date", date);
+                        values.put("news_content",content);
+                        values.put("news_source",source);
+                        //存入数据库
+                        db.insert("News",null,values);
+                        titledata.add(0, title);
+                    }
                     mHandler.sendEmptyMessage(REFRESH_COMPLETE);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -93,8 +129,20 @@ public class HomeSubFragment extends Fragment implements RefreshListView.OnRefre
             @Override
             public void run() {
                 try {
-                    Thread.sleep(1000);
-                    mDatas.add("more下拉刷新");
+                    Thread.sleep(800);
+                    String last_title = titledata.get(titledata.size()-1);
+                    helper = new DatabaseHelper(getActivity(), "NewsDatabase.db", null, 1);
+                    SQLiteDatabase db = helper.getReadableDatabase();
+                    Cursor cursor = db.rawQuery("select * from News where news_title=?", new String[]{last_title});
+                    if(cursor.moveToNext()) {
+                        int id = cursor.getInt(cursor.getColumnIndex("id"));
+                        id--;
+                        Cursor newcur = db.rawQuery("select * from News where id=?", new String[]{Integer.toString(id)});
+                        if(newcur.moveToNext()) {
+                            String title = newcur.getString(cursor.getColumnIndex("news_title"));
+                            titledata.add(title);
+                        }
+                    }
                     mHandler.sendEmptyMessage(LOAD_COMPLETE);
                 } catch (InterruptedException e) {
                     e.printStackTrace();

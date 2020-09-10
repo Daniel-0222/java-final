@@ -37,7 +37,8 @@ public class HomeFragment extends Fragment {
     private List<Fragment> fragments = new ArrayList<>();
     private PagerAdapter adapter;
     private DatabaseHelper helper;
-    private final int listnum = 10;
+    private final int listnum = 20;    //初次访问存入数据库的新闻数
+    private final int shownum = 10;     //展示的新闻数
 
     @Nullable
     @Override
@@ -76,18 +77,19 @@ public class HomeFragment extends Fragment {
         datas.add("test9");
     }
     private void initViews() throws InterruptedException {
-        UrlGeter geter = new UrlGeter("https://covid-dashboard.aminer.cn/api/events/list?type=news&page=5");
+        UrlGeter geter = new UrlGeter("https://covid-dashboard.aminer.cn/api/events/list?type=news&page=2");
         geter.Gets();
         //循环注入标签
         for (String tab : datas) {
             tabLayout.addTab(tabLayout.newTab().setText(tab));
         }
 
+        List<String> show_list;
         List<String> title_list = new ArrayList<>();
         List<String> id_list = new ArrayList<>();
         List<String> date_list = new ArrayList<>();
         List<String> content_list = new ArrayList<>();
-        List<String> urls_list = new ArrayList<>();
+        List<String> source_list = new ArrayList<>();
         //获取新闻标题
         for (int i = 0; i < listnum; i++){
             String tem;
@@ -114,12 +116,15 @@ public class HomeFragment extends Fragment {
         //获取新闻的来源
         geter.setZero();
         for(int i = 0;i < listnum;i++){
-            urls_list.add(geter.getData("urls"));
+            source_list.add(geter.getData("source"));
         }
 
-        //将list信息存入数据库
-        helper = new DatabaseHelper(getActivity(), "Newsdb.db", null, 1);
+        helper = new DatabaseHelper(getActivity(), "NewsDatabase.db", null, 1);
         SQLiteDatabase db = helper.getWritableDatabase();
+        db.execSQL("delete from News");
+
+        //将list信息存入数据库
+        db = helper.getWritableDatabase();
         for(int i=listnum-1;i>=0;i--){
             //组装数据
             ContentValues values = new ContentValues();
@@ -127,36 +132,25 @@ public class HomeFragment extends Fragment {
             values.put("news_id",id_list.get(i));
             values.put("news_date", date_list.get(i));
             values.put("news_content",content_list.get(i));
-            values.put("news_sourse",urls_list.get(i));
+            values.put("news_source",source_list.get(i));
             //存入数据库
             db.insert("News",null,values);
         }
         db.close();
 
-        SQLiteDatabase dbr = helper.getReadableDatabase();
-        Cursor cursor = dbr.rawQuery("select * from News", null);
-        if(cursor.moveToFirst()){
-            do {
-                String title = cursor.getString(cursor.getColumnIndex("news_title"));
-                String id = cursor.getString(cursor.getColumnIndex("news_id"));
-                String date = cursor.getString(cursor.getColumnIndex("news_date"));
-                String content = cursor.getString(cursor.getColumnIndex("news_content"));
-                String sourse = cursor.getString(cursor.getColumnIndex("news_sourse"));
-                System.out.print("title is: "+title);
-                System.out.print("       id is: "+id);
-                System.out.print("       date is: "+date);
-                System.out.print("       content is: "+content);
-                System.out.println("       sourse is: "+sourse);
-            }while (cursor.moveToNext());
-        }
-        dbr.close();
+//        SQLiteDatabase dbr = helper.getReadableDatabase();
+//        Cursor cursor = db.rawQuery("select * from News", null);
+//        if(cursor.moveToFirst()){
+//            do{
+//                String title = cursor.getString(cursor.getColumnIndex("news_title"))
+//            } while (cursor.moveToNext())
+//        }
 
-        db = helper.getWritableDatabase();
-        db.execSQL("delete from News");
+        show_list = title_list.subList(0,shownum);
         //设置TabLayout点击事件
         for (int i = 0; i < 9; i++) {
             HomeSubFragment h = new HomeSubFragment();
-            h.getS(title_list);
+            h.getS(show_list);
             fragments.add(h);
         }
         //tabLayout.addOnTabSelectedListener((TabLayout.BaseOnTabSelectedListener) this);

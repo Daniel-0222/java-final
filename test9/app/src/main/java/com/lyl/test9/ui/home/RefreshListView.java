@@ -87,7 +87,7 @@ public class RefreshListView extends ListView implements AbsListView.OnScrollLis
         headerView.setPadding(0, -headerViewHeight, 0, 0);
 
         footerViewHeight = footerView.getMeasuredHeight();
-        footerView.setPadding(0, 0, 0, -footerViewHeight-100000);
+        footerView.setPadding(0, 0, 0, -footerViewHeight);
 
         //初始化刷新状态
         refreshstate = REFRESH_DONE;

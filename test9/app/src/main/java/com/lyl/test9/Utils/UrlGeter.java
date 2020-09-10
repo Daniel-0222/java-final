@@ -57,7 +57,7 @@ public class UrlGeter {
         try {
             if(jsarray == null) return null;
             if(jsarray.getJSONObject(index) == null) return null;
-            ret = jsarray.getJSONObject(index).getString(tag);
+            ret = jsarray.getJSONObject(index).optString(tag);
             index += 1;
         } catch (JSONException e) {
             e.printStackTrace();

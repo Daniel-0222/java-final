@@ -14,7 +14,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + "news_date text,"
             + "news_content text,"
             + "news_id text,"
-            + "news_sourse text)";
+            + "news_source text)";
 
     public DatabaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
